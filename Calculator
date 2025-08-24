@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to enhance the calculator */
+        .calculator {
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .calculator:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        }
+        
+        .display {
+            background: #1e293b;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
+        }
+        
+        .btn {
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        
+        .operator {
+            background: #f59e0b;
+        }
+        
+        .operator:hover {
+            background: #f97316;
+        }
+        
+        .equals {
+            background: #10b981;
+        }
+        
+        .equals:hover {
+            background: #059669;
+        }
+        
+        .clear {
+            background: #ef4444;
+        }
+        
+        .clear:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="calculator w-80 bg-white">
+        <!-- Calculator display -->
+        <div class="display p-4 text-right text-3xl font-light" id="display">
+            0
+        </div>
+        
+        <!-- Calculator buttons -->
+        <div class="grid grid-cols-4 gap-0.5 p-1 bg-gray-200">
+            <!-- Row 1 -->
+            <button class="btn clear bg-red-500 text-white p-4 text-xl col-span-2" onclick="clearDisplay()">AC</button>
+            <button class="btn bg-gray-300 p-4 text-xl" onclick="backspace()">⌫</button>
+            <button class="btn operator p-4 text-xl" onclick="appendOperator('/')">÷</button>
+            
+            <!-- Row 2 -->
+            <button class="btn bg-gray-100 p-4 text-xl" onclick="appendNumber('7')">7</button>
+            <button class="btn bg-gray-100 p-4 text-xl" onclick="appendNumber('8')">8</button>
+            <button class="btn bg-gray-100 p-4 text-xl" onclick="appendNumber('9')">9</button>
+            <button class="btn operator p-4 text-xl" onclick="appendOperator('*')">×</button>
+            
+            <!-- Row 3 -->
+            <button class="btn bg-gray-100 p-4 text-xl" onclick="appendNumber('4')">4</button>
+            <button class="btn bg-gray-100 p-4 text-xl" onclick="appendNumber('5')">5</button>
+            <button class="btn bg-gray-100 p-4 text-xl" onclick="appendNumber('6')">6</button>
+            <button class="btn operator p-4 text-xl" onclick="appendOperator('-')">−</button>
+            
+            <!-- Row 4 -->
+            <button class="btn bg-gray-100 p-4 text-xl" onclick="appendNumber('1')">1</button>
+            <button class="btn bg-gray-100 p-4 text-xl" onclick="appendNumber('2')">2</button>
+            <button class="btn bg-gray-100 p-4 text-xl" onclick="appendNumber('3')">3</button>
+            <button class="btn operator p-4 text-xl" onclick="appendOperator('+')">+</button>
+            
+            <!-- Row 5 -->
+            <button class="btn bg-gray-100 p-4 text-xl col-span-2" onclick="appendNumber('0')">0</button>
+            <button class="btn bg-gray-100 p-4 text-xl" onclick="appendDecimal()">.</button>
+            <button class="btn equals bg-green-500 text-white p-4 text-xl" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let previousInput = '';
+        let operation = null;
+        let resetInput = false;
+        
+        const display = document.getElementById('display');
+        
+        // Update the display
+        function updateDisplay() {
+            display.textContent = currentInput;
+        }
+        
+        // Append number to current input
+        function appendNumber(number) {
+            if (currentInput === '0' || resetInput) {
+                currentInput = number;
+                resetInput = false;
+            } else {
+                currentInput += number;
+            }
+            updateDisplay();
+        }
+        
+        // Append decimal point
+        function appendDecimal() {
+            if (resetInput) {
+                currentInput = '0.';
+                resetInput = false;
+                updateDisplay();
+                return;
+            }
+            
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+                updateDisplay();
+            }
+        }
+        
+        // Handle operator selection
+        function appendOperator(op) {
+            if (operation !== null) calculate();
+            previousInput = currentInput;
+            operation = op;
+            resetInput = true;
+        }
+        
+        // Perform calculation
+        function calculate() {
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+            
+            switch (operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    result = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            
+            currentInput = result.toString();
+            operation = null;
+            resetInput = true;
+            updateDisplay();
+        }
+        
+        // Clear the display and reset calculator
+        function clearDisplay() {
+            currentInput = '0';
+            previousInput = '';
+            operation = null;
+            updateDisplay();
+        }
+        
+        // Backspace function
+        function backspace() {
+            if (currentInput.length === 1 || (currentInput.length === 2 && currentInput.startsWith('-'))) {
+                currentInput = '0';
+            } else {
+                currentInput = currentInput.slice(0, -1);
+            }
+            updateDisplay();
+        }
+        
+        // Theme selector (optional)
+        function setTheme(theme) {
+            document.documentElement.className = theme;
+        }
+    </script>
+</body>
+</html>
